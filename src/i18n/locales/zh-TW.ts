@@ -8,18 +8,13 @@ const zhTW = {
   login: '登入',
   logout: '登出',
   uploadAward: '上傳獎項',
-  submit: '提交',
   delete: '刪除',
-  back: '返回',
   view: '檢視',
   score: '分數',
-  search: '搜尋',
   language: '語言',
 
   // Roles
   roleAdmin: '管理員',
-  roleUser: '使用者',
-  roleGuest: '訪客',
 
   // Status
   statusPending: '待審核',
@@ -31,12 +26,11 @@ const zhTW = {
   achievementLeaderboard: '成就排行榜',
   leaderboardSubtitle: '表揚學術與課外活動中的優異表現，涵蓋',
   schools: '所學校',
-  pendingReview: '{count} 項提交待管理員審核',
+  pendingReview: '{count} 項申請待審核',
   totalParticipants: '參與人數',
   approvedAwards: '已核准獎項',
   schoolsLabel: '學校數量',
   overallRankings: '總排名',
-  rank: '排名',
   name: '姓名',
   school: '學校',
   awards: '獎項',
@@ -49,8 +43,6 @@ const zhTW = {
   approved: '已核准',
   pending: '待審核',
   rejected: '已拒絕',
-  mySubmissions: '我的提交',
-  total: '總計',
   noSubmissionsYet: '目前沒有提交記錄。',
   uploadFirstAward: '上傳你的第一個獎項 →',
   submitted: '提交時間',
@@ -63,10 +55,16 @@ const zhTW = {
   approve: '核准',
   reject: '拒絕',
   enterValidScore: '請輸入有效分數（0或以上）。',
-  by: '提交者',
-  approvedByOn: '由 {approver} 於 {date} 核准',
-  reviewedByOn: '由 {approver} 於 {date} 審核',
-  allSubmissions: '所有提交',
+  cannotApproveOwn: '您不能核准自己的申請。',
+  ownSubmissionDisabled: '無法審核自己的申請 — 操作已禁用。',
+  enterRejectReason: '請輸入拒絕原因',
+  enterRevertReason: '請輸入撤回為待審核的原因',
+  revertToPending: '撤回為待審核',
+  cancel: '取消',
+  submittedBy: '提交者',
+  reviewer: '審核者',
+  reviewedOn: '審核日期',
+  rejectReason: '拒絕原因',
 
   // Login page
   signIn: '登入',
@@ -97,11 +95,14 @@ const zhTW = {
   awardPendingReview: '你的獎項正在等待管理員審核。',
   submitAnother: '再次提交',
   goToDashboard: '前往儀表板',
+  totalAwards: '所有獎項',
+  myAwards: '我的獎項',
 
   // Profile page
   backToLeaderboard: '返回排行榜',
+  backToAdmin: '返回管理面板',
   userNotFound: '使用者不存在。',
-  totalSubmissions: '總提交數',
+  totalSubmissions: '總提交獎項',
   achievementsByCategory: '按類別統計成就',
 
   // Leaderboard extras
@@ -110,13 +111,12 @@ const zhTW = {
   rankInSchool: '校內排名',
   filterBySchool: '按學校篩選',
   allSchools: '全部學校',
-
-  // Levels
-  levelInternational: '國際',
-  levelNational: '國家',
-  levelRegional: '地區',
-  levelDistrict: '區級',
-  levelSchool: '校級',
+  filterBySemester: '按學期篩選',
+  allSemesters: '全部時間',
+  filterByLevel: '按級別篩選',
+  allLevels: '全部級別',
+  filterByCategory: '按類別篩選',
+  allCategories: '全部類別',
 };
 
 export default zhTW;

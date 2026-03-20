@@ -278,11 +278,24 @@ export const MOCK_AWARDS: Award[] = [
     submittedAt: '2025-08-30', approvedAt: '2025-09-02', approvedBy: 'Admin Zhang',
   },
   {
-    id: 'a13', userId: 'u6', userName: 'Emma Wong', school: 'Harbor International School',
+    id: 'a13', userId: 'u2', userName: 'Emma Wong', school: 'Harbor International School',
     title: 'School Innovation Award',
     description: 'Developed a water purification prototype, won the School Innovation Award.',
     category: 'Science & Technology', level: 'School', status: 'rejected', score: 0,
     submittedAt: '2025-12-01',
+    notes: [
+      { from: 'pending', to: 'rejected', by: 'Admin Zhang', at: '2025-12-03', reason: 'test' }
+    ],
+  },
+  {
+    id: 'a43', userId: 'u2', userName: 'Emma Wong', school: 'Harbor International School',
+    title: 'School Innovation Award',
+    description: 'Developed a water purification prototype, won the School Innovation Award.',
+    category: 'Science & Technology', level: 'School', status: 'pending', score: 0,
+    submittedAt: '2025-12-01',
+    notes: [
+      { from: 'pending', to: 'rejected', by: 'Admin Zhang', at: '2025-12-03', reason: 'test' }
+    ],
   },
   // Frank Liu (u7) — Riverside Academy
   {
@@ -472,5 +485,12 @@ export const MOCK_AWARDS: Award[] = [
     description: 'First place in backstroke and butterfly events at the Regional Swimming Meet.',
     category: 'Sports', level: 'Regional', status: 'approved', score: 40,
     submittedAt: '2025-07-30', approvedAt: '2025-08-01', approvedBy: 'Admin Zhang',
+  },
+  {
+    id: 'a38', userId: 'u1', userName: 'Admin Zhang', school: 'Greenwood High School',
+    title: 'Regional Swimming Meet – 1st Place',
+    description: 'First place in backstroke and butterfly events at the Regional Swimming Meet.',
+    category: 'Sports', level: 'Regional', status: 'pending', score: 0,
+    submittedAt: '2025-07-30',
   },
 ];

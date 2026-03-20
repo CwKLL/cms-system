@@ -1,11 +1,12 @@
 ﻿'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useAwards } from '@/context/AwardContext';
 import { useAuth } from '@/context/AuthContext';
 import { useI18n } from '@/context/I18nContext';
-import { MOCK_USERS } from '@/lib/mockData';
+import { MOCK_USERS, CATEGORIES, LEVELS } from '@/lib/mockData';
+import { extractSemesters, getSemesterKey, getSemesterLabel } from '@/lib/semester';
 import {
   Box, Typography, Card, CardContent, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Avatar, Chip, Button, Alert,
@@ -24,6 +25,7 @@ interface ExtendedEntry {
   userId: string;
   name: string;
   school: string;
+  avatarInitials: string;
   totalScore: number;
   approvedAwards: number;
 }
@@ -46,23 +48,36 @@ export default function LeaderboardPage() {
   const { currentUser } = useAuth();
   const { t } = useI18n();
   const [schoolFilter, setSchoolFilter] = useState('');
+  const [semesterFilter, setSemesterFilter] = useState('');
+  const [levelFilter, setLevelFilter] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
   const [page, setPage] = useState(1);
 
   const isAdmin = currentUser?.role === 'admin';
+
+  const availableSemesters = useMemo(
+    () => extractSemesters(awards.map((a) => a.submittedAt)),
+    [awards],
+  );
 
   const leaderboard: ExtendedEntry[] = useMemo(() => {
     const scoreMap: Record<string, number> = {};
     const countMap: Record<string, number> = {};
 
     awards
-      .filter((a) => a.status === 'approved')
+      .filter((a) => {
+        if (a.status !== 'approved') return false;
+        if (semesterFilter && getSemesterKey(a.submittedAt) !== semesterFilter) return false;
+        if (levelFilter && a.level !== levelFilter) return false;
+        if (categoryFilter && a.category !== categoryFilter) return false;
+        return true;
+      })
       .forEach((a) => {
         scoreMap[a.userId] = (scoreMap[a.userId] ?? 0) + a.score;
         countMap[a.userId] = (countMap[a.userId] ?? 0) + 1;
       });
 
-    // Only rank users who have at least 1 approved award
-    const sorted: ExtendedEntry[] = MOCK_USERS
+    const ranked = MOCK_USERS
       .filter((u) => scoreMap[u.id] !== undefined)
       .map((u) => ({
         rank: 0,
@@ -70,33 +85,31 @@ export default function LeaderboardPage() {
         userId: u.id,
         name: u.name,
         school: u.school,
+        avatarInitials: u.avatarInitials,
         totalScore: scoreMap[u.id] ?? 0,
         approvedAwards: countMap[u.id] ?? 0,
       }))
       .sort((a, b) => b.totalScore - a.totalScore || a.name.localeCompare(b.name))
       .map((entry, i) => ({ ...entry, rank: i + 1 }));
 
-    // Compute in-school rank: group by school (already globally sorted so order preserved)
     const schoolCounter: Record<string, number> = {};
-    sorted.forEach((entry) => {
+    return ranked.map((entry) => {
       schoolCounter[entry.school] = (schoolCounter[entry.school] ?? 0) + 1;
-      entry.schoolRank = schoolCounter[entry.school];
+      return { ...entry, schoolRank: schoolCounter[entry.school] };
     });
-
-    return sorted;
-  }, [awards]);
+  }, [awards, semesterFilter, levelFilter, categoryFilter]);
 
   const schoolsWithUsers = useMemo(() => {
     const schools = new Set(leaderboard.map((e) => e.school));
     return Array.from(schools).sort();
   }, [leaderboard]);
 
-  const filtered = useMemo(() => {
-    setPage(1);
-    if (!schoolFilter) return leaderboard;
-    return leaderboard.filter((e) => e.school === schoolFilter);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [leaderboard, schoolFilter]);
+  useEffect(() => { setPage(1); }, [schoolFilter, semesterFilter, levelFilter, categoryFilter]);
+
+  const filtered = useMemo(
+    () => schoolFilter ? leaderboard.filter((e) => e.school === schoolFilter) : leaderboard,
+    [leaderboard, schoolFilter],
+  );
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -127,10 +140,9 @@ export default function LeaderboardPage() {
       </Box>
 
       {/* Stats */}
-      <Box display="grid" gridTemplateColumns="repeat(3, 1fr)" gap={3} mb={4}>
+      <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={3} mb={4}>
         {[
           { label: t('totalParticipants'), value: MOCK_USERS.length },
-          { label: t('approvedAwards'), value: awards.filter((a) => a.status === 'approved').length },
           { label: t('schoolsLabel'), value: 10 },
         ].map((s) => (
           <Card key={s.label} variant="outlined">
@@ -142,7 +154,7 @@ export default function LeaderboardPage() {
         ))}
       </Box>
 
-      {/* Your Rank card â€” only for logged-in users who have scored */}
+      {/* Rank card only for logged-in users who have scored */}
       {myEntry && (
         <Card
           variant="outlined"
@@ -150,8 +162,8 @@ export default function LeaderboardPage() {
         >
           <CardContent sx={{ py: 2, px: 3 }}>
             <Box display="flex" alignItems="center" gap={2} flexWrap="wrap">
-              <PersonIcon sx={{ color: '#4f46e5', fontSize: 22 }} />
-              <Typography variant="subtitle1" fontWeight={700} color="primary">
+              <PersonIcon sx={{ color: '#4f46e5', fontSize: 22, marginTop: '17px'}} />
+              <Typography variant="subtitle1" fontWeight={700} color="primary" sx={{ mt: 2.5 }}>
                 {t('yourRank')}
               </Typography>
               <Box display="flex" gap={4} ml={1} flexWrap="wrap">
@@ -180,7 +192,7 @@ export default function LeaderboardPage() {
                   size="small"
                   startIcon={<EyeIcon />}
                 >
-                  {t('viewMore')}
+                  {t('view')}
                 </Button>
               </Box>
             </Box>
@@ -189,14 +201,33 @@ export default function LeaderboardPage() {
       )}
 
       {/* Filter + table */}
-      <Box display="flex" justifyContent="flex-end" mb={2}>
+      <Box display="flex" gap={2} flexWrap="wrap" justifyContent="flex-start" mb={2}>
         <TextField
-          select
-          size="small"
-          value={schoolFilter}
-          onChange={(e) => setSchoolFilter(e.target.value)}
-          label={t('filterBySchool')}
-          sx={{ minWidth: 240 }}
+          select size="small" label={t('filterBySemester')} value={semesterFilter}
+          onChange={(e) => setSemesterFilter(e.target.value)} sx={{ minWidth: 200 }}
+        >
+          <MenuItem value="">{t('allSemesters')}</MenuItem>
+          {availableSemesters.map((k) => (
+            <MenuItem key={k} value={k}>{getSemesterLabel(k)}</MenuItem>
+          ))}
+        </TextField>
+        <TextField
+          select size="small" label={t('filterByLevel')} value={levelFilter}
+          onChange={(e) => setLevelFilter(e.target.value)} sx={{ minWidth: 160 }}
+        >
+          <MenuItem value="">{t('allLevels')}</MenuItem>
+          {LEVELS.map((l) => <MenuItem key={l} value={l}>{l}</MenuItem>)}
+        </TextField>
+        <TextField
+          select size="small" label={t('filterByCategory')} value={categoryFilter}
+          onChange={(e) => setCategoryFilter(e.target.value)} sx={{ minWidth: 180 }}
+        >
+          <MenuItem value="">{t('allCategories')}</MenuItem>
+          {CATEGORIES.map((c) => <MenuItem key={c} value={c}>{c}</MenuItem>)}
+        </TextField>
+        <TextField
+          select size="small" label={t('filterBySchool')} value={schoolFilter}
+          onChange={(e) => setSchoolFilter(e.target.value)} sx={{ minWidth: 240 }}
         >
           <MenuItem value="">{t('allSchools')}</MenuItem>
           {schoolsWithUsers.map((s) => (
@@ -276,7 +307,7 @@ export default function LeaderboardPage() {
                     <TableCell>
                       <Box display="flex" alignItems="center" gap={1.5}>
                         <Avatar sx={{ width: 32, height: 32, bgcolor: isCurrentUser ? '#4f46e5' : '#e0e7ff', color: isCurrentUser ? '#fff' : '#4338ca', fontWeight: 700, fontSize: 11 }}>
-                          {MOCK_USERS.find((u) => u.id === entry.userId)?.avatarInitials}
+                          {entry.avatarInitials}
                         </Avatar>
                         <Typography variant="body2" fontWeight={isCurrentUser ? 700 : 500}>
                           {entry.name}

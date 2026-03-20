@@ -1,36 +1,24 @@
 'use client';
 
-import { useParams } from 'next/navigation';
+import { useState } from 'react';
+import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAwards } from '@/context/AwardContext';
 import { useAuth } from '@/context/AuthContext';
 import { useI18n } from '@/context/I18nContext';
 import { MOCK_USERS } from '@/lib/mockData';
+import { level_color, status_config } from '@/lib/constants';
+import { Award } from '@/types';
+import AwardDetailDialog from '@/components/AwardDetailDialog';
 import {
   Box, Typography, Card, CardContent, Avatar, Chip, Button, Divider, Stack,
 } from '@mui/material';
 import {
   EmojiEvents as TrophyIcon,
   ArrowBack as BackIcon,
-  CheckCircle as CheckIcon,
-  AccessTime as ClockIcon,
-  Cancel as XIcon,
   MilitaryTech as MedalIcon,
+  Visibility as EyeIcon,
 } from '@mui/icons-material';
-
-const STATUS_MAP = {
-  approved: { labelKey: 'statusApproved', color: 'success' as const, Icon: CheckIcon },
-  pending:  { labelKey: 'statusPending',  color: 'warning' as const, Icon: ClockIcon },
-  rejected: { labelKey: 'statusRejected', color: 'error' as const,   Icon: XIcon },
-};
-
-const LEVEL_COLOR: Record<string, string> = {
-  International: '#7c3aed',
-  National: '#2563eb',
-  Regional: '#0891b2',
-  District: '#0d9488',
-  School: '#64748b',
-};
 
 export default function ProfilePage() {
   const { id } = useParams<{ id: string }>();
@@ -38,13 +26,18 @@ export default function ProfilePage() {
   const { currentUser } = useAuth();
   const { t } = useI18n();
 
+  const searchParams = useSearchParams();
+  const from = searchParams?.get('from') ?? '';
+  const fromAdmin = from === 'admin';
+  const [viewDialog, setViewDialog] = useState<{ open: boolean; award: Award | null }>({ open: false, award: null });
+
   const user = MOCK_USERS.find((u) => u.id === id);
   if (!user) {
     return (
       <Box textAlign="center" py={10}>
         <Typography color="text.secondary" variant="h6">{t('userNotFound')}</Typography>
-        <Button component={Link} href="/" startIcon={<BackIcon />} sx={{ mt: 2 }}>
-          {t('backToLeaderboard')}
+        <Button component={Link} href={fromAdmin ? '/admin' : '/'} startIcon={<BackIcon />} sx={{ mt: 2 }}>
+          {t(fromAdmin ? 'backToAdmin' : 'backToLeaderboard')}
         </Button>
       </Box>
     );
@@ -53,10 +46,6 @@ export default function ProfilePage() {
   const isAdmin = currentUser?.role === 'admin';
   const isOwner = currentUser?.id === id;
 
-  // Role-based filtering:
-  // - Admin: sees all awards
-  // - Owner (viewing own profile): sees all their own awards
-  // - Others / public: sees only approved awards
   const allUserAwards = awards.filter((a) => a.userId === id);
   const visibleAwards = (isAdmin || isOwner)
     ? allUserAwards
@@ -72,9 +61,15 @@ export default function ProfilePage() {
 
   return (
     <Box maxWidth={720} mx="auto" display="flex" flexDirection="column" gap={3}>
+      <AwardDetailDialog
+        open={viewDialog.open}
+        award={viewDialog.award}
+        onClose={() => setViewDialog({ open: false, award: null })}
+      />
+
       {/* Back */}
-      <Button component={Link} href="/" startIcon={<BackIcon />} sx={{ alignSelf: 'flex-start' }} color="inherit">
-        {t('backToLeaderboard')}
+      <Button component={Link} href={fromAdmin ? '/admin' : '/'} startIcon={<BackIcon />} sx={{ alignSelf: 'flex-start' }} color="inherit">
+        {t(fromAdmin ? 'backToAdmin' : 'backToLeaderboard')}
       </Button>
 
       {/* Profile card */}
@@ -87,11 +82,6 @@ export default function ProfilePage() {
             <Box>
               <Typography variant="h5" fontWeight={700} color="#fff">{user.name}</Typography>
               <Typography variant="body2" color="#a5b4fc" mt={0.5}>{user.school}</Typography>
-              <Chip
-                label={user.role === 'admin' ? t('roleAdmin') : t('roleUser')}
-                size="small"
-                sx={{ mt: 1, bgcolor: 'rgba(255,255,255,0.15)', color: '#c7d2fe', fontSize: '0.7rem', textTransform: 'capitalize' }}
-              />
             </Box>
           </Box>
         </Box>
@@ -104,8 +94,8 @@ export default function ProfilePage() {
         >
           {[
             { label: t('totalScore'), value: totalScore, color: '#4f46e5', always: true },
-            { label: t('approvedAwards'), value: approvedAwards.length, color: '#15803d', always: true },
-            { label: t('totalSubmissions'), value: visibleAwards.length, color: '#374151', always: false },
+            { label: (isAdmin || isOwner) ? t('approvedAwards') : t('awards'), value: approvedAwards.length, color: '#15803d', always: true },
+            { label: t('totalSubmissions'), value: allUserAwards.length, color: '#374151', always: false },
           ]
             .filter((s) => s.always || (isAdmin || isOwner))
             .map((s) => (
@@ -138,7 +128,7 @@ export default function ProfilePage() {
       <Card variant="outlined">
         <Box sx={{ px: 3, py: 2, borderBottom: '1px solid', borderColor: 'divider', display: 'flex', alignItems: 'center', gap: 1 }}>
           <MedalIcon color="primary" />
-          <Typography variant="subtitle1" fontWeight={600}>{t('allSubmissions')}</Typography>
+          <Typography variant="subtitle1" fontWeight={600}>{t('totalAwards')}</Typography>
         </Box>
 
         {visibleAwards.length === 0 ? (
@@ -148,9 +138,9 @@ export default function ProfilePage() {
         ) : (
           <Stack divider={<Divider />}>
             {visibleAwards.map((award) => {
-              const cfg = STATUS_MAP[award.status];
+              const cfg = status_config[award.status];
               return (
-                <Box key={award.id} sx={{ px: 3, py: 2, display: 'flex', alignItems: 'flex-start', gap: 2 }}>
+                <Box key={award.id} sx={{ px: 3, py: 2, display: 'flex', alignItems: 'stretch', gap: 2 }}>
                   <Box flex={1} minWidth={0}>
                     <Box display="flex" alignItems="center" gap={1} flexWrap="wrap" mb={0.75}>
                       {(isAdmin || isOwner) && (
@@ -165,22 +155,60 @@ export default function ProfilePage() {
                       <Chip
                         label={award.level}
                         size="small"
-                        sx={{ bgcolor: `${LEVEL_COLOR[award.level] ?? '#64748b'}20`, color: LEVEL_COLOR[award.level] ?? '#64748b', fontWeight: 600 }}
+                        sx={{ bgcolor: `${level_color[award.level] ?? '#64748b'}20`, color: level_color[award.level] ?? '#64748b', fontWeight: 600 }}
                       />
-                      <Typography variant="caption" color="text.disabled">{award.category}</Typography>
+                      <Typography
+                        component="span"
+                        variant="caption"
+                        sx={{ display: 'inline-flex', alignItems: 'center', height: 24, lineHeight: 1, fontWeight: 600, color: 'black' }}
+                      >
+                        {award.category}
+                      </Typography>
                     </Box>
-                    <Typography variant="body1" fontWeight={600}>{award.title}</Typography>
-                    <Typography variant="body2" color="text.secondary" mt={0.25}>{award.description}</Typography>
-                    <Typography variant="caption" color="text.disabled" display="block" mt={0.75}>
-                      {t('submitted')}: {award.submittedAt}
-                    </Typography>
+                    <Typography variant="body1" fontWeight={600} sx={{ textDecoration: 'underline' }}>{award.title}</Typography>
+                    <Typography variant="body2" color="black" mt={0.25}>{award.description}</Typography>
+                    {(isOwner || isAdmin) && (
+                      <Typography variant="caption" color="black" mt={0.5} display="block">
+                        {t('submitted')}: {award.submittedAt}
+                      </Typography>
+                    )}
+                    {award.status === 'rejected' && award.notes && (
+                      (() => {
+                        const lastRejected = [...(award.notes ?? [])].reverse().find((n) => n.to === 'rejected') ?? award.notes[award.notes.length - 1];
+                        return (
+                          <Box>
+                            <Typography variant="caption" color="black" display="block">
+                              {t('reviewer')}: <Typography component="span" variant="caption" fontWeight={600} color="text.primary" sx={{ textDecoration: 'underline' }}>{lastRejected.by}</Typography>
+                            </Typography>
+                            <Typography variant="caption" color="black" display="block">
+                              {t('reviewedOn')}: {lastRejected.at ?? ''}
+                            </Typography>
+                            {lastRejected.reason && (
+                              <Typography variant="caption" color="black" display="block">
+                                {t('rejectReason')}: {lastRejected.reason}
+                              </Typography>
+                            )}
+                          </Box>
+                        );
+                      })()
+                    )}
                   </Box>
-                  {award.status === 'approved' && (
-                    <Box flexShrink={0} textAlign="right">
-                      <Typography variant="h6" fontWeight={700} color="primary">+{award.score}</Typography>
-                      <Typography variant="caption" color="text.disabled">{t('pts')}</Typography>
+                  <Box display="flex" flexDirection="column" justifyContent="space-between" alignItems="flex-end" flexShrink={0}>
+                    <Box>
+                      {award.status === 'approved' && (
+                        <Typography variant="h6" fontWeight={700} color="primary">+{award.score} {t('pts')}</Typography>
+                      )}
                     </Box>
-                  )}
+                    <Button
+                      variant="contained"
+                      size="small"
+                      startIcon={<EyeIcon sx={{ fontSize: 13 }} />}
+                      sx={{ fontSize: '0.75rem', px: 2, minWidth: 100 }}
+                      onClick={() => setViewDialog({ open: true, award })}
+                    >
+                      {t('view')}
+                    </Button>
+                  </Box>
                 </Box>
               );
             })}

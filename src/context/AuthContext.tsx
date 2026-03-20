@@ -9,7 +9,6 @@ const AuthContext = createContext<AuthState | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
-  // Restore session from localStorage on mount
   useEffect(() => {
     const stored = localStorage.getItem('cms_user_id');
     if (stored) {

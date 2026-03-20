@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
 import { Locale, TranslationKeys, locales, defaultLocale } from '@/i18n';
 
 interface I18nState {
@@ -12,13 +12,17 @@ interface I18nState {
 const I18nContext = createContext<I18nState | null>(null);
 
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>(() => {
-    if (typeof window !== 'undefined') {
+  const [locale, setLocaleState] = useState<Locale>(defaultLocale);
+
+  useEffect(() => {
+    try {
       const stored = localStorage.getItem('cms_locale') as Locale | null;
-      if (stored && locales[stored]) return stored;
+      if (stored && locales[stored] && stored !== locale) {
+        setLocaleState(stored);
+      }
+    } catch (e) {
     }
-    return defaultLocale;
-  });
+  }, []);
 
   const setLocale = useCallback((newLocale: Locale) => {
     setLocaleState(newLocale);

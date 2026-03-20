@@ -8,18 +8,13 @@ const enUS = {
   login: 'Login',
   logout: 'Logout',
   uploadAward: 'Upload Award',
-  submit: 'Submit',
   delete: 'Delete',
-  back: 'Back',
   view: 'View',
   score: 'Score',
-  search: 'Search',
   language: 'Language',
 
   // Roles
   roleAdmin: 'Admin',
-  roleUser: 'User',
-  roleGuest: 'Guest',
 
   // Status
   statusPending: 'Pending',
@@ -31,12 +26,11 @@ const enUS = {
   achievementLeaderboard: 'Achievement Leaderboard',
   leaderboardSubtitle: 'Celebrating academic and co-curricular excellence across',
   schools: 'schools',
-  pendingReview: '{count} submission(s) pending admin review',
+  pendingReview: '{count} submission(s) pending for review',
   totalParticipants: 'Total Participants',
   approvedAwards: 'Approved Awards',
   schoolsLabel: 'Schools',
   overallRankings: 'Overall Rankings',
-  rank: 'Rank',
   name: 'Name',
   school: 'School',
   awards: 'Awards',
@@ -49,8 +43,6 @@ const enUS = {
   approved: 'Approved',
   pending: 'Pending',
   rejected: 'Rejected',
-  mySubmissions: 'My Submissions',
-  total: 'total',
   noSubmissionsYet: 'No submissions yet.',
   uploadFirstAward: 'Upload your first award →',
   submitted: 'Submitted',
@@ -63,10 +55,16 @@ const enUS = {
   approve: 'Approve',
   reject: 'Reject',
   enterValidScore: 'Please enter a valid score (0 or more).',
-  by: 'By',
-  approvedByOn: 'Approved by {approver} on {date}',
-  reviewedByOn: 'Reviewed by {approver} on {date}',
-  allSubmissions: 'All Submissions',
+  cannotApproveOwn: 'You cannot approve your own submission.',
+  ownSubmissionDisabled: 'Not allowed to review your own submission — actions are disabled.',
+  enterRejectReason: 'Please enter a reason for rejection',
+  enterRevertReason: 'Please enter a reason for reverting to pending',
+  revertToPending: 'Revert to Pending',
+  cancel: 'Cancel',
+  submittedBy: 'Submitted by',
+  reviewer: 'Reviewer',
+  reviewedOn: 'Reviewed on',
+  rejectReason: 'Reject reason',
 
   // Login page
   signIn: 'Sign In',
@@ -97,11 +95,14 @@ const enUS = {
   awardPendingReview: 'Your award is pending admin review.',
   submitAnother: 'Submit Another',
   goToDashboard: 'Go to Dashboard',
+  totalAwards: 'All Awards',
+  myAwards: 'My Awards',
 
   // Profile page
   backToLeaderboard: 'Back to Leaderboard',
+  backToAdmin: 'Back to Admin',
   userNotFound: 'User not found.',
-  totalSubmissions: 'Total Submissions',
+  totalSubmissions: 'Total Awards Submitted',
   achievementsByCategory: 'Achievements by Category',
 
   // Leaderboard extras
@@ -110,13 +111,12 @@ const enUS = {
   rankInSchool: 'Rank (School)',
   filterBySchool: 'Filter by School',
   allSchools: 'All Schools',
-
-  // Levels
-  levelInternational: 'International',
-  levelNational: 'National',
-  levelRegional: 'Regional',
-  levelDistrict: 'District',
-  levelSchool: 'School',
+  filterBySemester: 'Filter by Semester',
+  allSemesters: 'All Time',
+  filterByLevel: 'Filter by Level',
+  allLevels: 'All Levels',
+  filterByCategory: 'Filter by Category',
+  allCategories: 'All Categories',
 };
 
 export default enUS;

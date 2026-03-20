@@ -8,18 +8,13 @@ const zhCN = {
   login: '登录',
   logout: '退出登录',
   uploadAward: '上传奖项',
-  submit: '提交',
   delete: '删除',
-  back: '返回',
   view: '查看',
   score: '分数',
-  search: '搜索',
   language: '语言',
 
   // Roles
   roleAdmin: '管理员',
-  roleUser: '用户',
-  roleGuest: '访客',
 
   // Status
   statusPending: '待审核',
@@ -31,12 +26,11 @@ const zhCN = {
   achievementLeaderboard: '成就排行榜',
   leaderboardSubtitle: '表彰学术与课外活动中的优秀表现，覆盖',
   schools: '所学校',
-  pendingReview: '{count} 项提交待管理员审核',
+  pendingReview: '{count} 项申请待审核',
   totalParticipants: '参与人数',
   approvedAwards: '已批准奖项',
   schoolsLabel: '学校数量',
   overallRankings: '总排名',
-  rank: '排名',
   name: '姓名',
   school: '学校',
   awards: '奖项',
@@ -49,8 +43,6 @@ const zhCN = {
   approved: '已批准',
   pending: '待审核',
   rejected: '已拒绝',
-  mySubmissions: '我的提交',
-  total: '总计',
   noSubmissionsYet: '暂无提交记录。',
   uploadFirstAward: '上传你的第一个奖项 →',
   submitted: '提交时间',
@@ -63,10 +55,16 @@ const zhCN = {
   approve: '批准',
   reject: '拒绝',
   enterValidScore: '请输入有效分数（0或以上）。',
-  by: '提交者',
-  approvedByOn: '由 {approver} 于 {date} 批准',
-  reviewedByOn: '由 {approver} 于 {date} 审核',
-  allSubmissions: '所有提交',
+  cannotApproveOwn: '您不能批准自己的申请。',
+  ownSubmissionDisabled: '无法审核自己的申请 — 操作已禁用。',
+  enterRejectReason: '请输入拒绝原因',
+  enterRevertReason: '请输入撤回到待审核的原因',
+  revertToPending: '撤回为待审核',
+  cancel: '取消',
+  submittedBy: '提交者',
+  reviewer: '审核者',
+  reviewedOn: '审核日期',
+  rejectReason: '拒绝原因',
 
   // Login page
   signIn: '登录',
@@ -97,11 +95,14 @@ const zhCN = {
   awardPendingReview: '你的奖项正在等待管理员审核。',
   submitAnother: '再次提交',
   goToDashboard: '前往仪表盘',
+  totalAwards: '所有奖项',
+  myAwards: '我的奖项',
 
   // Profile page
   backToLeaderboard: '返回排行榜',
+  backToAdmin: '返回管理面板',
   userNotFound: '用户不存在。',
-  totalSubmissions: '总提交数',
+  totalSubmissions: '总提交奖项',
   achievementsByCategory: '按类别统计成就',
 
   // Leaderboard extras
@@ -110,13 +111,12 @@ const zhCN = {
   rankInSchool: '校内排名',
   filterBySchool: '按学校筛选',
   allSchools: '全部学校',
-
-  // Levels
-  levelInternational: '国际',
-  levelNational: '国家',
-  levelRegional: '地区',
-  levelDistrict: '区级',
-  levelSchool: '校级',
+  filterBySemester: '按学期筛选',
+  allSemesters: '全部时间',
+  filterByLevel: '按级别筛选',
+  allLevels: '全部级别',
+  filterByCategory: '按类别筛选',
+  allCategories: '全部类别',
 };
 
 export default zhCN;

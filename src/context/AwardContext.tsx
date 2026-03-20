@@ -12,8 +12,8 @@ import { MOCK_AWARDS } from '@/lib/mockData';
 interface AwardStore {
   awards: Award[];
   submitAward: (award: Omit<Award, 'id' | 'status' | 'score' | 'submittedAt'>) => void;
-  approveAward: (id: string, score: number, approverName: string) => void;
-  rejectAward: (id: string, approverName: string) => void;
+  rejectAward: (id: string, approverName: string, reason?: string) => void;
+  updateStatus: (id: string, to: Award['status'], actorName: string, reason?: string, score?: number) => void;
   deleteAward: (id: string) => void;
 }
 
@@ -33,23 +33,38 @@ export function AwardProvider({ children }: { children: ReactNode }) {
     setAwards((prev) => [newAward, ...prev]);
   };
 
-  const approveAward = (id: string, score: number, approverName: string) => {
+  const rejectAward = (id: string, approverName: string, reason?: string) => {
     setAwards((prev) =>
       prev.map((a) =>
         a.id === id
-          ? { ...a, status: 'approved' as AwardStatus, score, approvedAt: new Date().toISOString().slice(0, 10), approvedBy: approverName }
+          ? {
+              ...a,
+              status: 'rejected' as AwardStatus,
+              notes: [
+                ...(a.notes ?? []),
+                { from: a.status, to: 'rejected', by: approverName, at: new Date().toISOString().slice(0, 10), reason },
+              ],
+            }
           : a
       )
     );
   };
 
-  const rejectAward = (id: string, approverName: string) => {
+  const updateStatus = (id: string, to: Award['status'], actorName: string, reason?: string, score?: number) => {
     setAwards((prev) =>
-      prev.map((a) =>
-        a.id === id
-          ? { ...a, status: 'rejected' as AwardStatus, approvedAt: new Date().toISOString().slice(0, 10), approvedBy: approverName }
-          : a
-      )
+      prev.map((a) => {
+        if (a.id !== id) return a;
+        const updated: Award = { ...a, status: to };
+        if (to === 'approved') {
+          updated.score = typeof score === 'number' ? score : a.score;
+          updated.approvedAt = new Date().toISOString().slice(0, 10);
+          updated.approvedBy = actorName;
+        } else if (to === 'rejected') {
+        } else {
+        }
+        updated.notes = [...(a.notes ?? []), { from: a.status, to, by: actorName, at: new Date().toISOString().slice(0, 10), reason }];
+        return updated;
+      })
     );
   };
 
@@ -58,7 +73,7 @@ export function AwardProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AwardContext.Provider value={{ awards, submitAward, approveAward, rejectAward, deleteAward }}>
+    <AwardContext.Provider value={{ awards, submitAward, rejectAward, updateStatus, deleteAward }}>
       {children}
     </AwardContext.Provider>
   );

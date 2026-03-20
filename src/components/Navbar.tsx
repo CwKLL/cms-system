@@ -112,11 +112,14 @@ export default function Navbar() {
               <Typography variant="body2" sx={{ color: '#c7d2fe', fontWeight: 600, lineHeight: 1.2 }}>
                 {currentUser.name}
               </Typography>
-              <Chip
-                label={currentUser.role === 'admin' ? t('roleAdmin') : t('roleUser')}
-                size="small"
-                sx={{ height: 18, fontSize: '0.65rem', bgcolor: 'rgba(255,255,255,0.15)', color: '#c7d2fe', mt: 0.25 }}
-              />
+              {currentUser.role === 'admin' ? (
+                <Chip
+                  label={t('roleAdmin')}
+                  size="small"
+                  sx={{ height: 18, fontSize: '0.65rem', bgcolor: 'rgba(255,255,255,0.15)', color: '#c7d2fe', mt: 0.25 }}
+                />
+              ) : null
+              }
             </Box>
             <Tooltip title={t('logout')}>
               <IconButton onClick={handleLogout} sx={{ color: 'rgba(255,255,255,0.7)', '&:hover': { color: '#fff' } }}>

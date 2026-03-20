@@ -19,22 +19,20 @@ export interface Award {
   title: string;
   description: string;
   category: string;
-  level: string; // e.g. "International", "National", "Regional", "School"
-  fileUrl?: string; // mock URL, no real file yet
+  level: string;
+  fileUrl?: string;
   status: AwardStatus;
-  score: number; // assigned by admin on approval
+  score: number;
   submittedAt: string;
   approvedAt?: string;
   approvedBy?: string;
-}
-
-export interface LeaderboardEntry {
-  rank: number;
-  userId: string;
-  name: string;
-  school: string;
-  totalScore: number;
-  approvedAwards: number;
+  notes?: Array<{
+    from: AwardStatus;
+    to: AwardStatus;
+    by: string;
+    at: string;
+    reason?: string;
+  }>;
 }
 
 export interface AuthState {
